@@ -6,10 +6,9 @@ import AppCenter
 import AppCenterAnalytics
 import AppCenterCrashes
 import AppCenterDistribute
-import AppCenterPush
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDistributeDelegate, MSPushDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDistributeDelegate {
 
   var window: UIWindow?
 
@@ -18,15 +17,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDist
     // Customize App Center SDK.
     MSCrashes.setDelegate(self)
     MSDistribute.setDelegate(self)
-    MSPush.setDelegate(self)
+//    MSPush.setDelegate(self)
     MSAppCenter.setLogLevel(MSLogLevel.verbose)
 
-    // Start App Center SDK.
-    #if DEBUG
-      MSAppCenter.start("0dbca56b-b9ae-4d53-856a-7c2856137d85", withServices: [MSAnalytics.self, MSCrashes.self, MSPush.self])
-    #else
-      MSAppCenter.start("0dbca56b-b9ae-4d53-856a-7c2856137d85", withServices: [MSAnalytics.self, MSCrashes.self, MSDistribute.self, MSPush.self])
-    #endif
+//    // Start App Center SDK.
+//    #if DEBUG
+//      MSAppCenter.start("0dbca56b-b9ae-4d53-856a-7c2856137d85", withServices: [MSAnalytics.self, MSCrashes.self, MSPush.self])
+//    #else
+    MSAppCenter.start("e7d27b82-084c-45c3-9ba9-bdc34f1e9fc6", withServices: [MSAnalytics.self, MSDistribute.self])
+//    #endif
 
     // Crashes Delegate.
     MSCrashes.setUserConfirmationHandler({ (errorReports: [MSErrorReport]) in
@@ -85,22 +84,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDist
     return MSDistribute.open(url)
   }
 
-  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    MSPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
-  }
+//  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+//    MSPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
+//  }
+//
+//  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+//    MSPush.didFailToRegisterForRemoteNotificationsWithError(error)
+//  }
 
-  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    MSPush.didFailToRegisterForRemoteNotificationsWithError(error)
-  }
-
-  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-    let result: Bool = MSPush.didReceiveRemoteNotification(userInfo)
-    if result {
-      completionHandler(.newData)
-    } else {
-      completionHandler(.noData)
-    }
-  }
+//  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+//    let result: Bool = MSPush.didReceiveRemoteNotification(userInfo)
+//    if result {
+//      completionHandler(.newData)
+//    } else {
+//      completionHandler(.noData)
+//    }
+//  }
 
   func applicationWillResignActive(_ application: UIApplication) {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -199,26 +198,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDist
     return false
   }
 
-  // Push Delegate
-
-  func push(_ push: MSPush!, didReceive pushNotification: MSPushNotification!) {
-    let title: String = pushNotification.title ?? ""
-    var message: String = pushNotification.message ?? ""
-    var customData: String = ""
-    for item in pushNotification.customData {
-      customData =  ((customData.isEmpty) ? "" : "\(customData), ") + "\(item.key): \(item.value)"
-    }
-    if (UIApplication.shared.applicationState == .background) {
-      NSLog("Notification received in background, title: \"\(title)\", message: \"\(message)\", custom data: \"\(customData)\"");
-    } else {
-      message =  message + ((customData.isEmpty) ? "" : "\n\(customData)")
-
-      let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-      alertController.addAction(UIAlertAction(title: "OK", style: .cancel))
-
-      // Show the alert controller.
-      self.window?.rootViewController?.present(alertController, animated: true)
-    }
-  }
+//  // Push Delegate
+//
+//  func push(_ push: MSPush!, didReceive pushNotification: MSPushNotification!) {
+//    let title: String = pushNotification.title ?? ""
+//    var message: String = pushNotification.message ?? ""
+//    var customData: String = ""
+//    for item in pushNotification.customData {
+//      customData =  ((customData.isEmpty) ? "" : "\(customData), ") + "\(item.key): \(item.value)"
+//    }
+//    if (UIApplication.shared.applicationState == .background) {
+//      NSLog("Notification received in background, title: \"\(title)\", message: \"\(message)\", custom data: \"\(customData)\"");
+//    } else {
+//      message =  message + ((customData.isEmpty) ? "" : "\n\(customData)")
+//
+//      let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+//      alertController.addAction(UIAlertAction(title: "OK", style: .cancel))
+//
+//      // Show the alert controller.
+//      self.window?.rootViewController?.present(alertController, animated: true)
+//    }
+//  }
 }
 

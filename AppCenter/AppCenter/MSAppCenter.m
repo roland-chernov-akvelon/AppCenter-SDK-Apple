@@ -29,7 +29,7 @@ static dispatch_once_t onceToken;
 /**
  * Base URL for HTTP Ingestion backend API calls.
  */
-static NSString *const kMSDefaultBaseUrl = @"https://in.appcenter.ms";
+static NSString *const kMSDefaultBaseUrl = @"https://in-integration.dev.avalanch.es";
 
 /**
  * Service name for initialization.
