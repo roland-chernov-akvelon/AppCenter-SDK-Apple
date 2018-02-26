@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Select photo for attachment</string>
 	<key>AppCenterAppDelegateForwarderEnabled</key>
 	<false/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -29,7 +27,7 @@
 			<string>com.microsoft.appcenter.sasquatchswift</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>appcenter-0dbca56b-b9ae-4d53-856a-7c2856137d85</string>
+				<string>appcenter-e7d27b82-084c-45c3-9ba9-bdc34f1e9fc6</string>
 			</array>
 		</dict>
 	</array>
@@ -37,8 +35,8 @@
 	<string>${BUILD_NUMBER}</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>AppCenterAppDelegateForwarderEnabled</key>
-	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select photo for attachment</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

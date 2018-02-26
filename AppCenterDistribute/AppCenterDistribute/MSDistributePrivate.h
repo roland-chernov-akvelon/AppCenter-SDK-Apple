@@ -26,12 +26,12 @@ static long long const kMSDayInMillisecond =
 /**
  * Base URL for HTTP Distribute install API calls.
  */
-static NSString *const kMSDefaultInstallUrl = @"https://install.appcenter.ms";
+static NSString *const kMSDefaultInstallUrl = @"https://install.appcenter-int.trafficmanager.net";
 
 /**
  * Base URL for HTTP Distribute update API calls.
  */
-static NSString *const kMSDefaultApiUrl = @"https://api.appcenter.ms/v0.1";
+static NSString *const kMSDefaultApiUrl = @"https://appcenter-int.trafficmanager.net/api/v0.1";
 
 /**
  * Distribute url query parameter key strings.

@@ -110,6 +110,9 @@
       return;
     }
 
+    MSLogDebug(@"AppCenterDistribute", @"Type: %@", item.type);
+    MSLogDebug(@"AppCenterDistribute", @"Group ID: %@", item.distributionGroupId);
+
     // Save the log first.
     MSLogDebug([MSAppCenter logTag], @"Saving log, type: %@.", item.type);
     BOOL success = [self.storage saveLog:item withGroupId:self.configuration.groupId];

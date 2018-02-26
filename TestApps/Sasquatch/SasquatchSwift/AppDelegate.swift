@@ -23,9 +23,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MSCrashesDelegate, MSDist
 
     // Start App Center SDK.
     #if DEBUG
-      MSAppCenter.start("0dbca56b-b9ae-4d53-856a-7c2856137d85", withServices: [MSAnalytics.self, MSCrashes.self, MSPush.self])
+      MSAppCenter.start("e7d27b82-084c-45c3-9ba9-bdc34f1e9fc6", withServices: [MSAnalytics.self, MSCrashes.self, MSDistribute.self, MSPush.self])
     #else
-      MSAppCenter.start("0dbca56b-b9ae-4d53-856a-7c2856137d85", withServices: [MSAnalytics.self, MSCrashes.self, MSDistribute.self, MSPush.self])
+      MSAppCenter.start("e7d27b82-084c-45c3-9ba9-bdc34f1e9fc6", withServices: [MSAnalytics.self, MSCrashes.self, MSDistribute.self, MSPush.self])
     #endif
 
     // Crashes Delegate.
