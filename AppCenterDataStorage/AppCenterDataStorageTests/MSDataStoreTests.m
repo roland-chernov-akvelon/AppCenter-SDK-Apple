@@ -13,14 +13,35 @@
 #import "MSChannelUnitProtocol.h"
 #import "MSDataStore.h"
 #import "MSDataStoreInternal.h"
-#import "MSMockUserDefaults.h"
 #import "MSTestFrameworks.h"
 #import "MSUserIdContextPrivate.h"
+#import "MSDataStore.h"
+#import "MSSerializableDocument.h"
+#import "MSDocumentWrapper.h"
+#import "MSWriteOptions.h"
+
+@interface MSDataStore (Test)
+
++ (instancetype)sharedInstance;
+
++ (void)createWithPartition:(NSString *)partition
+                                documentId:(NSString *)documentId
+                                document:(id<MSSerializableDocument>)document
+                                completionHandler:(MSDocumentWrapperCompletionHandler)completionHandler;
+
++ (void)createWithPartition:(NSString *)partition
+                                documentId:(NSString *)documentId
+                                document:(id<MSSerializableDocument>)document
+                                writeOptions:(MSWriteOptions *)writeOptions
+                                completionHandler:(MSDocumentWrapperCompletionHandler)completionHandler;
+
++ (void)deleteDocumentWithPartition:(NSString *)partition
+                                documentId:(NSString *)documentId
+                                writeOptions:(MSWriteOptions *)__unused writeOptions
+                                completionHandler:(MSDataSourceErrorCompletionHandler)completionHandler;
+@end
 
 @interface MSDataStoreTests : XCTestCase
-
-@property(nonatomic) id settingsMock;
-@property(nonatomic) MSDataStore *sut;
 
 @end
 
@@ -28,44 +49,96 @@
 
 - (void)setUp {
   [super setUp];
-  self.settingsMock = [MSMockUserDefaults new];
-  self.sut = [MSDataStore new];
 }
 
 - (void)tearDown {
   [super tearDown];
-  //[MSDataStore resetSharedInstance];
-  [self.settingsMock stopMocking];
 }
 
-#pragma mark - Tests
+- (void)testCreateWithPartitionWithoutWriteOptionsGoldenTest {
+    
+    //If
+    NSString *partition = @"partition";
+    NSString *documentId = @"documentId";
+   
+    id mockSerializableDocument = OCMProtocolMock(@protocol(MSSerializableDocument));
+    OCMStub([mockSerializableDocument serializeToDictionary]).andReturn([NSDictionary new]);
 
-- (void)testApplyEnabledStateWorks {
-  
-  // If
-  [[MSDataStore sharedInstance] startWithChannelGroup:OCMProtocolMock(@protocol(MSChannelGroupProtocol))
-                                            appSecret:kMSTestAppSecret
-                              transmissionTargetToken: nil
-                                      fromApplication: YES];
-  MSServiceAbstract *service = (MSServiceAbstract *)[MSDataStore sharedInstancce];
-  
-   // When
-  [service setEnabled:YES];
-  
-  // Then
-  XCTAssertTrue([service isEnabled]);
-  
-  // When
-  [service setEnabled:NO];
-  
-  // Then
-  XCTAssertFalse([service isEnabled]);
-  
-  // When
-  [service setEnabled:YES];
-  
-  // Then
-  XCTAssertTrue([service isEnabled]);
+     __block BOOL completionHandlerCalled = NO;
+    XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
+    MSDocumentWrapperCompletionHandler completionHandler = ^(MSDocumentWrapper *data) {
+        completionHandlerCalled = YES;
+        [completionHandler fulfill];
+    };
+    
+    // When
+    [MSDataStore createWithPartition:partition
+                          documentId:documentId
+                            document:mockSerializableDocument
+                   completionHandler:completionHandler];
+    
+    [self waitForExpectationsWithTimeout:10 handler:nil];
+    
+    // Then
+    XCTAssertTrue([completeExpectation assertForOverFulfill]);
+    XCTAssertTrue(completionHandlerCalled);
+    
+}
+
+- (void)testCreateWithPartitionWithWriteOptionsGoldenTest {
+    
+    //If
+    NSString *partition = @"partition";
+    NSString *documentId = @"documentId";
+    MSWriteOptions *options = [MSWriteOptions new];
+    
+    id mockSerializableDocument = OCMProtocolMock(@protocol(MSSerializableDocument));
+    OCMStub([mockSerializableDocument serializeToDictionary]).andReturn([NSDictionary new]);
+    
+    __block BOOL completionHandlerCalled = NO;
+    XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
+    MSDocumentWrapperCompletionHandler completionHandler = ^(MSDocumentWrapper *data) {
+        completionHandlerCalled = YES;
+        [completionHandler fulfill];
+    };
+    
+    // When
+    [MSDataStore createWithPartition:partition
+                          documentId:documentId
+                            document:mockSerializableDocument
+                        writeOptions:options
+                   completionHandler:completionHandler];
+    
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    
+    // Then
+    XCTAssertTrue([completeExpectation assertForOverFulfill]);
+    XCTAssertTrue(completionHandlerCalled);
+    
+}
+
+- (void) testDeleteDocumentWithPartition {
+    NSString *partition = @"partition";
+    NSString *documentId = @"documentId";
+    
+    __block BOOL completionHandlerCalled = NO;
+    XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
+    MSDataSourceErrorCompletionHandler completionHandler = ^(MSDataSourceError *error) {
+        completionHandlerCalled = YES;
+        [completionHandler fulfill];
+    };
+    
+    [MSDataStore deleteDocumentWithPartition:partition
+                                            documentId:documentId
+                                            writeOptions:nil
+                                            completionHandler:completionHandler];
+    
+    
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    
+    // Then
+    XCTAssertTrue([completeExpectation assertForOverFulfill]);
+    XCTAssertTrue(completionHandlerCalled);
 }
 
 @end
