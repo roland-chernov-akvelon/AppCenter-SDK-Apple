@@ -20,6 +20,10 @@
 #import "MSDocumentWrapper.h"
 #import "MSWriteOptions.h"
 #import "MSPage.h"
+#import "MSTokenExchange.h"
+#import "MSTokensResponse.h"
+#import "MSTokenResult.h"
+#import "MSCosmosDb.h"
 
 @interface MSDataStore (Test)
 
@@ -58,17 +62,46 @@
 
 - (void)testCreateWithPartitionWithoutWriteOptionsGoldenTest {
     
-    //If
+    // If
     NSString *partition = @"partition";
     NSString *documentId = @"documentId";
-   
+    NSString *httpMethod = @"POST";
+    NSData *body = nil;
+    NSDictionary *additionalHeaders = nil;
     id mockSerializableDocument = OCMProtocolMock(@protocol(MSSerializableDocument));
     OCMStub([mockSerializableDocument serializeToDictionary]).andReturn([NSDictionary new]);
 
-     __block BOOL completionHandlerCalled = NO;
-    XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
+    // Mock tokens fetching.
+    MSTokensResponse *testTokensResponse = [[MSTokensResponse alloc] initWithTokens:@[[MSTokenResult new]]];
+    id tokenExchangeMock = OCMClassMock([MSTokenExchange class]);
+    OCMStub([tokenExchangeMock performDbTokenAsyncOperationWithHttpClient:OCMOCK_ANY partition:OCMOCK_ANY completionHandler:OCMOCK_ANY])
+        .andDo(^(NSInvocation *invocation) {
+            MSGetTokenAsyncCompletionHandler getTokenCallback;
+            [invocation retainArguments];
+            [invocation getArgument:&getTokenCallback atIndex:4];
+            getTokenCallback(testTokensResponse, nil);
+        });
+
+    // Mock CosmosDB requests.
+    NSData *testResponse = nil;
+    OCMStub([MSCosmosDb performCosmosDbAsyncOperationWithHttpClient:OCMOCK_ANY
+                                                tokenResult:OCMOCK_ANY
+                                                 documentId:documentId
+                                                 httpMethod:httpMethod
+                                                       body:body // we need to double check what body is allowed here, defined as nil for now
+                                          additionalHeaders:additionalHeaders // the same for headers, but we have a reference here and need to check values using [OCMArg checkWithBlock]
+                                          completionHandler:OCMOCK_ANY
+    ]).andDo(^(NSInvocation *invocation) {
+        MSCosmosDbCompletionHandler cosmosdbOperationCallback;
+        [invocation retainArguments];
+        [invocation getArgument:&getTokenCallback atIndex:8];
+        cosmosdbOperationCallback(testResponse, nil);
+    });
+
+    //__block BOOL completionHandlerCalled = NO;
+    __block XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
     MSDocumentWrapperCompletionHandler completionHandler = ^(MSDocumentWrapper *data) {
-        completionHandlerCalled = YES;
+        //completionHandlerCalled = YES;
         [completionHandler fulfill];
     };
     
@@ -77,13 +110,15 @@
                           documentId:documentId
                             document:mockSerializableDocument
                    completionHandler:completionHandler];
-    
-    [self waitForExpectationsWithTimeout:5 handler:nil];
-    
+
     // Then
-    XCTAssertTrue([completeExpectation assertForOverFulfill]);
-    XCTAssertTrue(completionHandlerCalled);
-    
+    [self waitForExpectationsWithTimeout:5 handler:handler:^(NSError *error) {
+        //XCTAssertTrue([completeExpectation assertForOverFulfill]);
+        //XCTAssertTrue(completionHandlerCalled);
+        if (error) {
+          XCTFail(@"Expectation Failed with error: %@", error);
+        }
+    }];
 }
 
 - (void)testCreateWithPartitionWithWriteOptionsGoldenTest {
