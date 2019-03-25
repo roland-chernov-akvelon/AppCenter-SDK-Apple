@@ -19,6 +19,7 @@
 #import "MSSerializableDocument.h"
 #import "MSDocumentWrapper.h"
 #import "MSWriteOptions.h"
+#import "MSPage.h"
 
 @interface MSDataStore (Test)
 
@@ -77,7 +78,7 @@
                             document:mockSerializableDocument
                    completionHandler:completionHandler];
     
-    [self waitForExpectationsWithTimeout:10 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
     
     // Then
     XCTAssertTrue([completeExpectation assertForOverFulfill]);
@@ -117,7 +118,9 @@
     
 }
 
-- (void) testDeleteDocumentWithPartition {
+- (void) testDeleteDocumentWithPartitionWithoutWriteOptions {
+    
+    // If
     NSString *partition = @"partition";
     NSString *documentId = @"documentId";
     
@@ -128,9 +131,9 @@
         [completionHandler fulfill];
     };
     
+    // When
     [MSDataStore deleteDocumentWithPartition:partition
                                             documentId:documentId
-                                            writeOptions:nil
                                             completionHandler:completionHandler];
     
     
@@ -141,4 +144,31 @@
     XCTAssertTrue(completionHandlerCalled);
 }
 
+- (void) testDeleteDocumentWithPartitionWithWriteOptions {
+    
+    // If
+    NSString *partition = @"partition";
+    NSString *documentId = @"documentId";
+    MSWriteOptions *options = [MSWriteOptions new];
+    
+    __block BOOL completionHandlerCalled = NO;
+    XCTestExpectation *completeExpectation = [self expectationWithDescription:@"Task finished"];
+    MSDataSourceErrorCompletionHandler completionHandler = ^(MSDataSourceError *error) {
+        completionHandlerCalled = YES;
+        [completionHandler fulfill];
+    };
+    
+    // When
+    [MSDataStore deleteDocumentWithPartition:partition
+                                  documentId:documentId
+                                writeOptions:options
+                           completionHandler:completionHandler];
+    
+    
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    
+    // Then
+    XCTAssertTrue([completeExpectation assertForOverFulfill]);
+    XCTAssertTrue(completionHandlerCalled);
+}
 @end
